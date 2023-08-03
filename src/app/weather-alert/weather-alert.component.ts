@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { WeatherService } from './weather.service';
 
 @Component({
   selector: 'app-weather-alert',
@@ -11,7 +12,7 @@ export class WeatherAlertComponent  {
   longitude: number = 0;
   weatherAlerts: any[] = [];
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private weatherService: WeatherService) { }
 
   getWeatherAlerts(): void {
     const apiUrl = 'https://localhost:5001/api/weather/weatheralerts'; // Replace with your API URL
