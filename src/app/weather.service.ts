@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class WeatherService {
-  private apiUrl = 'http://localhost:5201/api/weather/weatheralerts';
+  private apiUrl = 'http://localhost:5000/api/weather/weatheralerts';
 
   constructor(private http: HttpClient) {}
 
