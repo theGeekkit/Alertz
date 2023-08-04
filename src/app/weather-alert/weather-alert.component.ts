@@ -12,7 +12,7 @@ export class WeatherAlertComponent implements OnInit {
   longitude: number = 0;
   weatherAlerts: any[] = [];
 
-  constructor(private weatherService: WeatherService) { }
+  constructor(private http: HttpClient, private weatherService: WeatherService) { }
 
   ngOnInit(): void {
     this.getWeatherAlerts();
