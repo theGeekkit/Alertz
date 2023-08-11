@@ -2,18 +2,18 @@
   <h2>Weather Alert</h2>
   <form (submit)="getWeatherAlerts()">
     <label for="latitude">Latitude:</label>
-    <input type="number" id="latitude" [(ngModel)]="latitude">
+    <input type="number" id="latitude" name="latitude" [(ngModel)]="latitude">
 
     <label for="longitude">Longitude:</label>
-    <input type="number" id="longitude" [(ngModel)]="longitude">
+    <input type="number" id="longitude" name="longitude" [(ngModel)]="longitude">
 
     <button type="submit">Get Weather Alerts</button>
   </form>
 
-  <div *ngIf="weatherAlerts">
+  <div *ngFor="let alert of weatherAlerts">
     <h3>Weather Alerts</h3>
     <ul>
-      <li *ngFor="let alert of weatherAlerts">{{ alert.Title }}</li>
+      <li >{{ alert.Title }}</li>
     </ul>
   </div>
 </div>
