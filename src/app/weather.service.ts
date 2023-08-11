@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
+
 @Injectable({
   providedIn: 'root',
 })
@@ -9,8 +10,10 @@ export class WeatherService {
 
   constructor(private http: HttpClient) {}
 
-  getWeatherAlerts(latitude: number, longitude: number) {
-    const weatherData = { Latitude: latitude, Longitude: longitude };
-    return this.http.post<any>(this.apiUrl, weatherData);
+  getWeatherAlerts() {
+    // Make a GET request
+    const apiUrl = 'https://api.weather.gov/alerts?point=37.01161240210997,-89.60530401388498';
+      return this.http.get(apiUrl);
+
   }
 }
