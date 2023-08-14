@@ -28,7 +28,8 @@ export class WeatherService {
 
   getForecast() {
     // Make a GET request
-    this.http.get('https://api.weather.gov/points/37.01161240210997,-89.60530401388498').subscribe((result: any) => {
+    // this.http.get('https://api.weather.gov/points/37.01161240210997,-89.60530401388498').subscribe((result: any) => {
+      this.http.get('https://api.weather.gov/gridpoints/PAH/96,51/forecast').subscribe((result: any) => {
       // Check if 'data' exists and is not empty
       if (result.data && result.data.length > 0) {
         this.forecast = result.data[0];
