@@ -1,11 +1,16 @@
 <div>
   <h2>Weather Alert</h2>
 
-  <div *ngFor="let alert of weatherAlerts">
+  <div *ngIf="alert">
     <h3>{{ alert.event }}</h3>
     <ul>
-      <h4>{{ alert.description }}</h4>
-      <h4>{{ alert.severity }}</h4>
+      <h4> {{ alert.severity }}</h4>
+      <li> {{ alert.description }}</li>
+
     </ul>
+  </div>
+
+  <div *ngIf="!alert">
+    <p>No weather alerts available.</p>
   </div>
 </div>

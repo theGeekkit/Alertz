@@ -1,9 +1,14 @@
 h2 {
   font-size: 65px;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  text-shadow: 0 0 5px #ff0000, 0 0 3px #0000ff;
 
 }
 label {
   font-size: 35px;
   color: rgb(61, 34, 241);
+}
+
+p {
+  font-size: 75px;
 }
