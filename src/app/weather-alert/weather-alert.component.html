@@ -2,6 +2,15 @@
   <h2>Weather Alert</h2>
 
   <div class="mat-card-container">
+    <mat-card class="mat-card-forecast">
+      <div>
+        <h3>Forecast</h3>
+        <ul>
+          <h4>Temperature: {{ forecast }}</h4>
+
+        </ul>
+      </div>
+    </mat-card>
     <mat-card class="mat-card-uno">
       <div *ngIf="alert">
         <h3>{{ alert.event }}</h3>
@@ -12,6 +21,21 @@
       </div>
     </mat-card>
     <mat-card class="mat-card-deuce">
+      <ng-container *ngIf="alert; else noAlert">
+        <h3>{{ alert.event }}</h3>
+        <ul>
+          <h4> {{ alert.severity }}</h4>
+          <li> {{ alert.description }} Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, quam error dolorem cupiditate, quos beatae a illo, dolore accusamus voluptates culpa. Expedita ut voluptatum debitis magni optio eos explicabo nulla.</li>
+        </ul>
+      </ng-container>
+      <ng-template #noAlert>
+        <div class="alert">
+          <p>No weather alerts available.</p>
+        </div>
+      </ng-template>
+    </mat-card>
+
+    <!-- <mat-card class="mat-card-deuce">
       <div *ngIf="alert">
         <h3>{{ alert.event }}</h3>
         <ul>
@@ -22,7 +46,7 @@
     </mat-card>
     <div class="alert" *ngIf="!alert">
       <p>No weather alerts available.</p>
-    </div>
+    </div> -->
   </div>
 
 </div>

@@ -6,9 +6,11 @@ import { Injectable } from '@angular/core';
 })
 export class WeatherService {
   alert: any = {};
+  forecast: any = {};
 
   constructor(private http: HttpClient) {
     this.getWeatherAlerts();
+    this.getForecast();
   }
 
   getWeatherAlerts() {
@@ -24,16 +26,16 @@ export class WeatherService {
     });
   }
 
-  // getForecast() {
-  //   // Make a GET request
-  //   this.http.get('https://api.weather.gov/gridpoints/akq/37.01161240210997,-89.60530401388498/forecast').subscribe((result: any) => {
-  //     // Check if 'data' exists and is not empty
-  //     if (result.data && result.data.length > 0) {
-  //       this.alert = result.data[0];
-  //     } else {
-  //       // Handle the case when no data is available
-  //       this.alert = null;
-  //     }
-  //   });
-  // }
+  getForecast() {
+    // Make a GET request
+    this.http.get('https://api.weather.gov/points/37.01161240210997,-89.60530401388498').subscribe((result: any) => {
+      // Check if 'data' exists and is not empty
+      if (result.data && result.data.length > 0) {
+        this.forecast = result.data[0];
+      } else {
+        // Handle the case when no data is available
+        this.forecast = null;
+      }
+    });
+  }
 }

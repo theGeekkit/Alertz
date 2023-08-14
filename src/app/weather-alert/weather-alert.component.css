@@ -20,8 +20,10 @@ label {
 }
 
 p {
-  font-size: 75px;
+  font-size: 20%;
 }
+
+
 
 .mat-card-container {
   background-color: transparent;
@@ -48,4 +50,5 @@ p {
 
 .alert {
   background-color: antique-white;
+  padding: 2%;
 }
