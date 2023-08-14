@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
+
 @Component({
   selector: 'app-weather-alert',
   templateUrl: './weather-alert.component.html',

@@ -1,9 +1,19 @@
+
+
 h2 {
+  margin-top: 3%;
+  padding-top: 3%;
+  margin-left: 35px;
+  padding-bottom: 3%;
+  padding-left: 3%;
+  padding-right: 3%;
   font-size: 65px;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   text-shadow: 0 0 5px #ff0000, 0 0 3px #0000ff;
-
+  max-width: fit-content;
+  border: white solid 5px;
 }
+
 label {
   font-size: 35px;
   color: rgb(61, 34, 241);
@@ -11,4 +21,31 @@ label {
 
 p {
   font-size: 75px;
+}
+
+.mat-card-container {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  padding-left: 5%;
+}
+
+.mat-card-uno {
+  background-color: gray;
+  max-width: 75%;
+  margin-bottom: 2%;
+  margin-left: 4%;
+
+}
+
+.mat-card-deuce {
+  background-color: rgb(132, 120, 120);
+  max-width: 85%;
+
+}
+
+.alert {
+  background-color: antique-white;
 }
