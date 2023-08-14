@@ -32,11 +32,11 @@ export class WeatherService {
       this.http.get('https://api.weather.gov/gridpoints/PAH/96,51/forecast').subscribe((result: any) => {
       // Check if 'data' exists and is not empty
       if (result.data && result.data.length > 0) {
-        this.forecast = result.data[0];
-      } else {
-        // Handle the case when no data is available
-        this.forecast = null;
-      }
+        this.forecast = result.data[0];}
+      //  else {
+      //   // Handle the case when no data is available
+      //   this.forecast = null;
+      // }
     });
   }
 }
