@@ -1,8 +1,5 @@
 <div>
   <h2>Weather Alert</h2>
-  <form (submit)="getWeatherAlerts()">
-    <button type="submit">Get Weather Alerts</button>
-  </form>
 
   <div *ngFor="let alert of weatherAlerts">
     <h3>{{ alert.event }}</h3>

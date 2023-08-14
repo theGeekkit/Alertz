@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
 
@@ -8,13 +8,22 @@ import { WeatherService } from '../weather.service';
   templateUrl: './weather-alert.component.html',
   styleUrls: ['./weather-alert.component.css']
 })
-export class WeatherAlertComponent implements OnInit {
+export class WeatherAlertComponent implements OnInit, OnDestroy {
   weatherAlerts: any[] = [];
+  private intervalId: any;
+  private updateInterval: number = 60000;
 
   constructor(private http: HttpClient, private weatherService: WeatherService) { }
 
   ngOnInit(): void {
-    this.getWeatherAlerts();
+    this.getWeatherAlerts(); // Initial call
+    this.intervalId = setInterval(() => {
+      this.getWeatherAlerts(); // Call the function repeatedly at the specified interval
+    }, this.updateInterval);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.intervalId); // Clear the interval when the component is destroyed
   }
 
   getWeatherAlerts() {
