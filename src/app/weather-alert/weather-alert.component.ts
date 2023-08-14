@@ -45,6 +45,7 @@ export class WeatherAlertComponent implements OnInit, OnDestroy {
           } else {
             console.log("No weather alerts available.");
           }
+          console.log(this.weatherAlerts); // Log the updated weatherAlerts array
         },
         error: (error: any) => {
           console.error('Error:', error);
