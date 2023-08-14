@@ -16,15 +16,12 @@
         <h3>{{ alert.event }}</h3>
         <ul>
           <h4> {{ alert.severity }}</h4>
-          <li> {{ alert.description }} Lorem ipsum dolor sit auia, quam error dolorem cupiditate, quos beatae a illo, dolore accusamus voluptates culpa. Expedita ut voluptatum debitis magni optio eos explicabo nulla.</li>
         </ul>
       </div>
     </mat-card>
     <mat-card class="mat-card-deuce">
       <ng-container *ngIf="alert; else noAlert">
-        <h3>{{ alert.event }}</h3>
         <ul>
-          <h4> {{ alert.severity }}</h4>
           <li> {{ alert.description }} Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, quam error dolorem cupiditate, quos beatae a illo, dolore accusamus voluptates culpa. Expedita ut voluptatum debitis magni optio eos explicabo nulla.</li>
         </ul>
       </ng-container>
