@@ -10,31 +10,35 @@ export class WeatherAlertComponent implements OnInit, OnDestroy {
   alert: any = {};
   forecast: any = {};
 
-  private intervalId: any;
-  private updateInterval: number = 60000;
 
-  constructor(private weatherService: WeatherService) { }
+  constructor(public weatherService: WeatherService) { }
 
   ngOnInit(): void {
-    // Initialize the alert and forecast properties
-    this.weatherService.getWeatherAlerts();
-    this.weatherService.getForecast();
+    this.init().then(() => console.log('initted'));
 
-    this.alert = this.weatherService.alert; // Initial assignment
-    this.forecast = this.weatherService.forecast; // Initial assignment
-
-    this.intervalId = setInterval(() => {
-      this.weatherService.getWeatherAlerts();
-      this.weatherService.getForecast();
-
-      // Update the properties after the asynchronous calls
-      this.alert = this.weatherService.alert;
-      this.forecast = this.weatherService.forecast;
-    }, this.updateInterval);
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.intervalId);
+    //clearInterval(this.intervalId);
+  }
+
+
+  async init() {
+    this.weatherService.$alertSubject.subscribe((alert) =>  {
+      this.alert = alert;
+    });
+
+
+    // Initialize the alert and forecast properties
+    //await this.weatherService.getWeatherAlerts();
+    //console.log('moving on to the next call');
+    //this.weatherService.getForecast();
+
+    //this.alert = this.weatherService.alert; // Initial assignment
+    //console.log(this.alert);
+    //this.forecast = this.weatherService.forecast; // Initial assignment
+
+    
   }
 }
 
