@@ -12,7 +12,6 @@ export class WeatherService {
   private updateInterval: number = 60000;
 
 
-  
   fileProgression = [
     'initial_alerts.json',
     'first_update.json',
@@ -23,7 +22,7 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-
+  initialAlertId: string
 
 
   constructor(private http: HttpClient, private ngZone: NgZone) {
@@ -43,6 +42,7 @@ export class WeatherService {
         // Update the properties after the asynchronous calls
         //this.alert = this.weatherService.alert;
         //this.forecast = this.weatherService.forecast;
+        this.checkForAlertUpdates(); // Call the new method to check for updates
       });
     }, this.updateInterval);
   }
@@ -50,25 +50,53 @@ export class WeatherService {
 
 
   async getWeatherAlerts() {
-    // GET request
-///
-      let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
-      if(this.currentFileProgressPosition >= this.fileProgression.length) {
-        this.currentFileProgressPosition = 0;
+    let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
+    if (this.currentFileProgressPosition >= this.fileProgression.length) {
+      this.currentFileProgressPosition = 0;
+    }
+
+    try {
+      const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
+      if (result && result.features?.length > 0) {
+        const alerts = result.features.map((feature: any) => {
+          return {
+            id: feature.id,
+            areaDesc: feature.properties.areaDesc,
+            // Add other properties you want to extract here
+          };
+        });
+
+        this.$alertSubject.next(alerts);
+      } else {
+        this.$alertSubject.next(null);
       }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+    console.log('function returned');
+  }
 
+  async checkForAlertUpdates() {
+    // Assuming this.alerts contains the parsed alerts with properties like 'id' and 'messageType'
+    try {
+      const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
+      if (result && result.features?.length > 0) {
+        const updatedAlerts = result.features.filter((feature: any) => {
+          return (
+            feature.properties.references.includes(this.initialAlertId) &&
+            feature.properties.messageType === 'Update'
+          );
+        });
 
-      try {
-        const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
-        if (result && result.features?.length > 0) {
-            this.$alertSubject.next(result.features[0]);
-        } else {
-            this.$alertSubject.next(null);
+        if (updatedAlerts.length > 0) {
+          // Handle the updated alerts as needed
+          console.log('Alerts have been updated:', updatedAlerts);
         }
-      } catch (error) {
-          console.error('An error occurred:', error);
       }
-
+    } catch (error) {
+      console.error('An error occurred while checking for updates:', error);
+    }
+  }
 
 
 
@@ -85,20 +113,19 @@ export class WeatherService {
       // });
 
 
-    console.log('function returned');
-  }
 
-  getForecast() {
-    // GET request
-    // this.http.get('https://api.weather.gov/points/37.01161240210997,-89.60530401388498').subscribe((result: any) => {
-      this.http.get('https://api.weather.gov/gridpoints/PAH/96,51/forecast').subscribe((result: any) => {
-      // Check if 'data' exists and is not empty
-      if (result.data && result.data.length > 0) {
-        this.forecast = result.data[0];}
-      //  else {
-      //   // Handle the case when no data is available
-      //   this.forecast = null;
-      // }
-    });
-  }
+
+  // getForecast() {
+  //   // GET request
+  //   // this.http.get('https://api.weather.gov/points/37.01161240210997,-89.60530401388498').subscribe((result: any) => {
+  //     this.http.get('https://api.weather.gov/gridpoints/PAH/96,51/forecast').subscribe((result: any) => {
+  //     // Check if 'data' exists and is not empty
+  //     if (result.data && result.data.length > 0) {
+  //       this.forecast = result.data[0];}
+  //     //  else {
+  //     //   // Handle the case when no data is available
+  //     //   this.forecast = null;
+  //     // }
+  //   });
+  // }
 }
