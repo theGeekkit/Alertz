@@ -42,6 +42,7 @@ export class WeatherService {
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
     if (this.currentFileProgressPosition >= this.fileProgression.length) {
       this.currentFileProgressPosition = 0;
+
     }
 
     try {
