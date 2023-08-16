@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -10,7 +11,6 @@ export class WeatherService {
   public $alertSubject = new BehaviorSubject<any>(null);
   private intervalId: any;
   private updateInterval: number = 60000;
-
 
   fileProgression = [
     'initial_alerts.json',
@@ -22,32 +22,21 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  initialAlertId: string
-
+  initialAlertId!: string;
 
   constructor(private http: HttpClient, private ngZone: NgZone) {
     this.getWeatherAlerts();
-    //this.getForecast();
     this.init().then(() => console.log('WeatherService, Initted'));
   }
 
-
-
   async init() {
     this.intervalId = setInterval(() => {
-      //
       this.ngZone.run(() => {
         this.getWeatherAlerts();
-        //this.weatherService.getForecast();
-        // Update the properties after the asynchronous calls
-        //this.alert = this.weatherService.alert;
-        //this.forecast = this.weatherService.forecast;
-        this.checkForAlertUpdates(); // Call the new method to check for updates
+
       });
     }, this.updateInterval);
   }
-
-
 
   async getWeatherAlerts() {
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
@@ -66,7 +55,11 @@ export class WeatherService {
           };
         });
 
+        this.initialAlertId = alerts[0].id;
         this.$alertSubject.next(alerts);
+
+        // Call the checkForAlertUpdates here
+        this.checkForAlertUpdates(result.features);
       } else {
         this.$alertSubject.next(null);
       }
@@ -76,9 +69,13 @@ export class WeatherService {
     console.log('function returned');
   }
 
-  async checkForAlertUpdates() {
-    // Assuming this.alerts contains the parsed alerts with properties like 'id' and 'messageType'
+  async checkForAlertUpdates(alertFeatures: any[]) {
     try {
+      let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
+      if (this.currentFileProgressPosition >= this.fileProgression.length) {
+        this.currentFileProgressPosition = 0;
+      }
+
       const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
       if (result && result.features?.length > 0) {
         const updatedAlerts = result.features.filter((feature: any) => {
