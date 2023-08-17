@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
+import { Subscription } from 'rxjs'; // Import Subscription
 
 @Component({
   selector: 'app-weather-alert',
@@ -9,36 +10,18 @@ import { WeatherService } from '../weather.service';
 export class WeatherAlertComponent implements OnInit, OnDestroy {
   alert: any = {};
   forecast: any = {};
-
+  private alertSubscription!: Subscription; // Declare Subscription
 
   constructor(public weatherService: WeatherService) { }
 
   ngOnInit(): void {
-    this.init().then(() => console.log('initted'));
-
+    this.alertSubscription = this.weatherService.alert$.subscribe((alert) => {
+      this.alert = alert;
+    });
   }
 
   ngOnDestroy(): void {
-    //clearInterval(this.intervalId);
-  }
-
-
-  async init() {
-    this.weatherService.$alertSubject.subscribe((alert) =>  {
-      this.alert = alert;
-    });
-
-
-    // Initialize the alert and forecast properties
-    //await this.weatherService.getWeatherAlerts();
-    //console.log('moving on to the next call');
-    //this.weatherService.getForecast();
-
-    //this.alert = this.weatherService.alert; // Initial assignment
-    //console.log(this.alert);
-    //this.forecast = this.weatherService.forecast; // Initial assignment
-
-    
+    // Unsubscribe to prevent memory leaks
+    this.alertSubscription.unsubscribe();
   }
 }
-
