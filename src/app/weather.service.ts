@@ -99,17 +99,16 @@ export class WeatherService {
         // Emit updated alerts through the Observable
         this.alertSubject.next(updatedAlerts);
       }
+    } else {
+      console.warn('Received invalid or unexpected data format:', result);
     }
   } catch (error) {
     console.error('An error occurred while checking for updates:', error);
   }
-
 }
 
-if (updatedAlerts.length > 0) {
-  // Emit updated alerts through the Observable
-  this.alertSubject.next(updatedAlerts);
-}
+
+
 
 // this.http.get(`/assets/json/${fileLookup}`).subscribe((result: any) => {
  //     console.log('got data');
