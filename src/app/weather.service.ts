@@ -50,7 +50,7 @@ export class WeatherService {
   let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
   if (this.currentFileProgressPosition >= this.fileProgression.length) {
    this.currentFileProgressPosition = 0;
-
+   console.log("getWeatherAlert1")
   }
 
   try {
@@ -86,6 +86,7 @@ export class WeatherService {
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
     if (this.currentFileProgressPosition >= this.fileProgression.length) {
       this.currentFileProgressPosition = 0;
+      console.log("CheckforAlertUpdate2")
     }
 
     const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
