@@ -14,14 +14,17 @@ export class WeatherAlertComponent implements OnInit, OnDestroy {
 
   constructor(public weatherService: WeatherService) { }
 
-  ngOnInit(): void {
-    this.alertSubscription = this.weatherService.alert$.subscribe((alert) => {
-      this.alert = alert;
+  ngOnInit() {
+    this.alertSubscription = this.weatherService.alert$.subscribe((updatedAlerts) => {
+      // Handle updated alerts here
+      this.alert = updatedAlerts;
+      console.log('Received updated alerts:', updatedAlerts);
     });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     // Unsubscribe to prevent memory leaks
     this.alertSubscription.unsubscribe();
   }
 }
+

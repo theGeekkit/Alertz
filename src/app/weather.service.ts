@@ -60,6 +60,8 @@ export class WeatherService {
      return {
       id: feature.id,
       areaDesc: feature.properties.areaDesc,
+      severity: feature.properties.severity,
+
       // Add other properties you want to extract here
      };
     });
