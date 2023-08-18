@@ -3,6 +3,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs'; // Import Observable
+import { interval, take, lastValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -54,26 +55,32 @@ export class WeatherService {
   }
 
   try {
-   const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
-   if (result && result.features?.length > 0) {
-    const alerts = result.features.map((feature: any) => {
-     return {
-      id: feature.id,
-      areaDesc: feature.properties.areaDesc,
-      severity: feature.properties.severity,
+    const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
+    const weatherBlob = (await lastValueFrom(result)) as any;
+    console.log(weatherBlob.features);
 
-      // Add other properties you want to extract here
-     };
-    });
+    // console.log(`The last data is ${weatherResult}`);
 
-    this.initialAlertId = alerts[0].id;
-    this.$alertSubject.next(alerts);
+  //  const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
+  //  if (result && result.features?.length > 0) {
+  //   const alerts = result.features.map((feature: any) => {
+  //    return {
+  //     id: feature.id,
+  //     areaDesc: feature.properties.areaDesc,
+  //     severity: feature.properties.severity,
 
-    // Call the checkForAlertUpdates here
-    this.checkForAlertUpdates(result.features);
-   } else {
-    this.$alertSubject.next(null);
-   }
+  //     // Add other properties you want to extract here
+  //    };
+  //   });
+
+  //   this.initialAlertId = alerts[0].id;
+  //   this.$alertSubject.next(alerts);
+
+  //   // Call the checkForAlertUpdates here
+  //   this.checkForAlertUpdates(result.features);
+  //  } else {
+  //   this.$alertSubject.next(null);
+  //  }
   } catch (error) {
    console.error('An error occurred:', error);
   }
@@ -108,9 +115,19 @@ export class WeatherService {
   } catch (error) {
     console.error('An error occurred while checking for updates:', error);
   }
+  async function execute() {
+    const source$ = interval(2000).pipe(take(5));
+    const finalNumber = await lastValueFrom(source$);
+    console.log(`The last data is ${finalNumber}`);
+  }
+  execute();
 }
 
 
+
+
+// Expected output:
+// "The final number is 9"
 
 
 // this.http.get(`/assets/json/${fileLookup}`).subscribe((result: any) => {
