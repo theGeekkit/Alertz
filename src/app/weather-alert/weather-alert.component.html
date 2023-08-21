@@ -16,9 +16,9 @@
     <mat-card class="mat-card-uno">
       <!-- <pre>{{alert | json}}</pre> -->
       <div *ngIf="alert?.properties">
-        <h3>{{ alert.properties.event }}</h3>
+        <h3>{{ alert.event }}</h3>
         <ul>
-          <h4> {{ alert.properties.severity }}</h4>
+          <h4> {{ alert.severity }}</h4>
         </ul>
       </div>
     </mat-card>

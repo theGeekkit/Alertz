@@ -51,7 +51,7 @@ export class WeatherService {
   let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
   if (this.currentFileProgressPosition >= this.fileProgression.length) {
    this.currentFileProgressPosition = 0;
-   console.log("getWeatherAlert1")
+  //  console.log("getWeatherAlert1")
   }
 
   try {
@@ -126,21 +126,7 @@ export class WeatherService {
 
 
 
-// Expected output:
-// "The final number is 9"
 
-
-// this.http.get(`/assets/json/${fileLookup}`).subscribe((result: any) => {
- //     console.log('got data');
- // // this.http.get('https://api.weather.gov/alerts?point=37.01161240210997,-89.60530401388498').subscribe((result: any) => {
- //   //this.http.get('https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.e0f63e7f94ee4d4044df45742aa02bfe5aaae0dc.001.1').subscribe((result: any) => {
- // // Check if 'data' exists and is not empty
- //   if (result && result.features?.length > 0) {
- //     this.alert = result.features[0];
- //   } else {
- //     this.alert = null;
- //   }
- // });
 
 
 
