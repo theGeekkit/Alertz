@@ -53,16 +53,16 @@ export class WeatherService {
    this.currentFileProgressPosition = 0;
 
   }
-  console.log(this.getWeatherAlerts)
+  // console.log(this.getWeatherAlerts)
   try {
     const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
     const weatherBlob = (await lastValueFrom(result)) as any;
-    console.log(weatherBlob.features);
+    // console.log(weatherBlob.features);
 
   } catch (error) {
    console.error('An error occurred:', error);
   }
-  console.log('function returned');
+  // console.log('function returned');
  }
 
 
