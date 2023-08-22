@@ -59,28 +59,6 @@ export class WeatherService {
     const weatherBlob = (await lastValueFrom(result)) as any;
     console.log(weatherBlob.features);
 
-    // console.log(`The last data is ${weatherResult}`);
-
-  //  const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
-  //  if (result && result.features?.length > 0) {
-  //   const alerts = result.features.map((feature: any) => {
-  //    return {
-  //     id: feature.id,
-  //     areaDesc: feature.properties.areaDesc,
-  //     severity: feature.properties.severity,
-
-  //     // Add other properties you want to extract here
-  //    };
-  //   });
-
-  //   this.initialAlertId = alerts[0].id;
-  //   this.$alertSubject.next(alerts);
-
-  //   // Call the checkForAlertUpdates here
-  //   this.checkForAlertUpdates(result.features);
-  //  } else {
-  //   this.$alertSubject.next(null);
-  //  }
   } catch (error) {
    console.error('An error occurred:', error);
   }

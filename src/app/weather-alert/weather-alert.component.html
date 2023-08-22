@@ -18,14 +18,14 @@
       <div *ngIf="alert?.properties">
         <h3>{{ alert.event }}</h3>
         <ul>
-          <h4> {{ alert.severity }}</h4>
+          <h2> {{ alert.severity }}</h2>
         </ul>
       </div>
     </mat-card>
     <mat-card class="mat-card-deuce">
       <ng-container *ngIf="alert; else noAlert">
         <ul>
-          <li> {{ alert.description }} Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, quam error dolorem cupiditate, quos beatae a illo, dolore accusamus voluptates culpa. Expedita ut voluptatum debitis magni optio eos explicabo nulla.</li>
+          <h4> {{ alert.description }}</h4>
         </ul>
       </ng-container>
       <ng-template #noAlert>
