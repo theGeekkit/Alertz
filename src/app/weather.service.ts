@@ -51,9 +51,9 @@ export class WeatherService {
   let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
   if (this.currentFileProgressPosition >= this.fileProgression.length) {
    this.currentFileProgressPosition = 0;
-  //  console.log("getWeatherAlert1")
-  }
 
+  }
+  console.log(this.getWeatherAlerts)
   try {
     const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
     const weatherBlob = (await lastValueFrom(result)) as any;
@@ -71,7 +71,7 @@ export class WeatherService {
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
     if (this.currentFileProgressPosition >= this.fileProgression.length) {
       this.currentFileProgressPosition = 0;
-      console.log("CheckforAlertUpdate2")
+      console.log("update", this.checkForAlertUpdates)
     }
 
     const result: any = await this.http.get(`/assets/json/${fileLookup}`).toPromise();
