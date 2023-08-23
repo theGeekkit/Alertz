@@ -12,6 +12,7 @@ h2 {
   text-shadow: 0 0 5px #ff0000, 0 0 3px #0000ff;
   max-width: fit-content;
   border: white solid 5px;
+  color: #ff0000;
 }
 
 label {
@@ -39,7 +40,8 @@ p {
   max-width: 75%;
   margin-bottom: 2%;
   margin-left: 4%;
-
+  min-height: 50px;
+  min-width: 50px;
 }
 
 .mat-card-deuce {

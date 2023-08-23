@@ -14,6 +14,11 @@ export class WeatherService {
  public $alertSubject = new BehaviorSubject<any>(null);
  private intervalId: any;
  private updateInterval: number = 60000;
+ private displayWeather: any;
+  private urgency: string = '';
+  private event: string = '';
+  private severity: string = '';
+  private description: string = '';
 
  fileProgression = [
   'initial_alerts.json',
@@ -34,36 +39,49 @@ export class WeatherService {
   public alert$: Observable<any> = this.alertSubject.asObservable(); // Expose as an Observable
 
   constructor(private http: HttpClient, private ngZone: NgZone) {
-    this.getWeatherAlerts();
+    this.displayWeather = this.getWeatherAlerts();
     this.init().then(() => console.log('WeatherService, Initted'));
   }
 
  async init() {
+  console.log("display weather:", this.displayWeather)
   this.intervalId = setInterval(() => {
-   this.ngZone.run(() => {
-    this.getWeatherAlerts();
+    this.ngZone.run(() => {
+      // this.getWeatherAlerts();
+      //  this.displayWeather = this.getWeatherAlerts();
+
+      this.urgency = this.displayWeather.features[0].properties.urgency;
+      this.event = this.displayWeather.features[0].properties.event;
+      this.severity = this.displayWeather.features[0].properties.severity;
+      this.description = this.displayWeather.features[0].properties.description;
 
    });
   }, this.updateInterval);
  }
+getEvent() {
+  console.log("event =" + this?.event);
+  return this?.event;
+}
 
  async getWeatherAlerts() {
   let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
+  var weatherBlob;
   if (this.currentFileProgressPosition >= this.fileProgression.length) {
    this.currentFileProgressPosition = 0;
 
   }
-  // console.log(this.getWeatherAlerts)
+
   try {
     const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
-    const weatherBlob = (await lastValueFrom(result)) as any;
+    weatherBlob = (await lastValueFrom(result)) as any;
     // console.log(weatherBlob.features);
 
   } catch (error) {
-   console.error('An error occurred:', error);
+    console.error('An error occurred:', error);
   }
   // console.log('function returned');
- }
+  return weatherBlob;
+}
 
 
  async checkForAlertUpdates(alertFeatures: any[]) {

@@ -15,10 +15,11 @@
     </mat-card>
     <mat-card class="mat-card-uno">
       <!-- <pre>{{alert | json}}</pre> -->
-      <div *ngIf="alert?.properties">
-        <h3>{{ alert.event }}</h3>
+      <div *ngIf="alert">
+
+        <h3> here {{ alert.event }}  </h3>
         <ul>
-          <h2> {{ alert.severity }}</h2>
+          <h3> {{ alert.severity }}</h3>
         </ul>
       </div>
     </mat-card>
