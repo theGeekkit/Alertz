@@ -47,7 +47,9 @@ export class WeatherService {
     // Constructor logic here (if needed)
   }
 
-  private async findReferencedIds(obj: { features: Feature[] }): Promise<string[]> {
+  private async findReferencedIds(obj: {
+    features: Feature[];
+  }): Promise<string[]> {
     const referencedIds: string[] = [];
     obj.features.forEach((feature) => {
       feature.properties.references.forEach((reference) => {
@@ -67,6 +69,10 @@ export class WeatherService {
     const referencedIds = await this.findReferencedIds(obj);
 
     const activeFeatures: Feature[] = [];
+    const readyToSendIds = new Set(
+      this.readyToSend.map((feature) => feature.id)
+    );
+
     obj.features.forEach((feature) => {
       const expirationDate = new Date(feature.properties.expires);
       if (
@@ -78,13 +84,7 @@ export class WeatherService {
       ) {
         activeFeatures.push(feature);
       }
-      const readyToSendIds = new Set(this.readyToSend.map((feature) => feature.id));
-      const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
-        (feature) => !readyToSendIds.has(feature.id)
-      );
     });
-
-    fs.writeFileSync('activeFeatures.json', JSON.stringify(activeFeatures)); // list of active alert for the end user
 
     const severeOrExtremeFeatures = activeFeatures.filter(
       (feature) =>
@@ -92,10 +92,11 @@ export class WeatherService {
         feature.properties.severity === 'Extreme'
     );
 
-    const readyToSendIds = new Set(this.readyToSend.map((feature) => feature.id));
     const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
       (feature) => !readyToSendIds.has(feature.id)
     );
+
+    fs.writeFileSync('activeFeatures.json', JSON.stringify(activeFeatures)); // list of active alert for the end user
 
     fs.writeFileSync(
       'readyToSend.json',
