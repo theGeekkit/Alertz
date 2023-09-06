@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { interval, take } from 'rxjs';
+import { LocalStorageService } from './local-storage.service';
 
 
 interface Feature {
@@ -42,13 +43,13 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  private readonly readDataEndpoint = 'https://your-server-url/read-data';
-  private readonly writeDataEndpoint = 'https://your-server-url/write-data';
-
-  constructor(private http: HttpClient) {
-    // Constructor logic here (if needed)
+  constructor(
+    private http: HttpClient,
+    private localStorageService: LocalStorageService
+  ) {
+    this.readyToSend =
+      this.localStorageService.getData<Feature[]>('readyToSend') || [];
   }
-
 
   private async findReferencedIds(obj: {
     features: Feature[];
@@ -99,11 +100,11 @@ export class WeatherService {
       (feature) => !readyToSendIds.has(feature.id)
     );
 
-    writeFileSync('activeFeatures.json', JSON.stringify(activeFeatures)); // list of active alert for the end user
+    const newReadyToSendData: Feature[] = [...]; // Replace with your new data
+    this.updateReadyToSend(newReadyToSendData)
 
-    writeFileSync(
-      'readyToSend.json',
-      JSON.stringify(filteredSevereOrExtremeFeatures)
-    );
+    updateReadyToSend(newData: Feature[]): void {
+      this.readyToSend = newData;
+      this.localStorageService.setData('readyToSend', this.readyToSend);
   }
 }
