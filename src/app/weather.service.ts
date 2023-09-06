@@ -1,7 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { interval, take } from 'rxjs';
-import { readFileSync, writeFileSync } from 'node:fs';
 
 
 interface Feature {
@@ -42,11 +42,13 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  initialAlertId!: string;
+  private readonly readDataEndpoint = 'https://your-server-url/read-data';
+  private readonly writeDataEndpoint = 'https://your-server-url/write-data';
 
-  constructor() {
+  constructor(private http: HttpClient) {
     // Constructor logic here (if needed)
   }
+
 
   private async findReferencedIds(obj: {
     features: Feature[];
