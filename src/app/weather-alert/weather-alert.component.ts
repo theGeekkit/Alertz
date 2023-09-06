@@ -15,7 +15,7 @@ export class WeatherAlertComponent implements OnInit, OnDestroy {
   constructor(public weatherService: WeatherService) { }
 
   ngOnInit() {
-    this.alertSubscription = this.weatherService.alert$.subscribe((updatedAlerts) => {
+    this.alertSubscription = this.weatherService.alert.subscribe((updatedAlerts: any) => {
       // Handle updated alerts here
       this.alert = updatedAlerts;
       // console.log('Received updated alerts:', updatedAlerts);

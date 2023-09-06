@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { interval, take } from 'rxjs';
-import * as fs from 'fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+
 
 interface Feature {
   id: string;
@@ -62,7 +63,7 @@ export class WeatherService {
   }
 
   private async run() {
-    const dat = fs.readFileSync('first_update.json', 'utf8');
+    const dat = readFileSync('first_update.json', 'utf8');
     const obj: { features: Feature[] } = JSON.parse(dat);
     const currentDate = new Date('2023-08-04T11:50:00-05:00');
 
@@ -96,9 +97,9 @@ export class WeatherService {
       (feature) => !readyToSendIds.has(feature.id)
     );
 
-    fs.writeFileSync('activeFeatures.json', JSON.stringify(activeFeatures)); // list of active alert for the end user
+    writeFileSync('activeFeatures.json', JSON.stringify(activeFeatures)); // list of active alert for the end user
 
-    fs.writeFileSync(
+    writeFileSync(
       'readyToSend.json',
       JSON.stringify(filteredSevereOrExtremeFeatures)
     );
