@@ -45,15 +45,23 @@ export class WeatherService {
   constructor(private http: HttpClient) { }
 
   private async findReferencedIds(obj: any): Promise<string[]> {
-    const referencedIds: string[] = [];
-    obj.features.forEach((feature) => {
-      feature.properties.references.forEach((reference) => {
-        if (!referencedIds.includes(reference['@id'])) {
-          referencedIds.push(reference['@id']);
-        }
-      });
-    });
-    return referencedIds;
+    try {
+      const response = await this.http.get<any>('http://example.com/api/referencedIds').toPromise();
+      const data = response;
+      return data;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+    // const referencedIds: string[] = [];
+    // obj.features.forEach((feature) => {
+    //   feature.properties.references.forEach((reference) => {
+    //     if (!referencedIds.includes(reference['@id'])) {
+    //       referencedIds.push(reference['@id']);
+    //     }
+    //   });
+    // });
+    // return referencedIds;
   }
 
   private async run() {
