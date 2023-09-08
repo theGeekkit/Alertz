@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { interval, take } from 'rxjs';
-import { LocalStorageService } from './local-storage.service';
+
 
 
 interface Feature {
@@ -43,17 +42,9 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  constructor(
-    private http: HttpClient,
-    private localStorageService: LocalStorageService
-  ) {
-    this.readyToSend =
-      this.localStorageService.getData<Feature[]>('readyToSend') || [];
-  }
+  constructor(private http: HttpClient) { }
 
-  private async findReferencedIds(obj: {
-    features: Feature[];
-  }): Promise<string[]> {
+  private async findReferencedIds(obj: any): Promise<string[]> {
     const referencedIds: string[] = [];
     obj.features.forEach((feature) => {
       feature.properties.references.forEach((reference) => {
