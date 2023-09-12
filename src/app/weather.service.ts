@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, Injector } from '@angular/core';
+import { BehaviorSubject, lastValueFrom } from 'rxjs';
 
 
 
@@ -42,68 +42,115 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private injector: Injector) { }
 
-  private async findReferencedIds(obj: any): Promise<string[]> {
-    try {
-      const response = await this.http.get<any>('http://example.com/api/referencedIds').toPromise();
-      const data = response;
-      return data;
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-    // const referencedIds: string[] = [];
-    // obj.features.forEach((feature) => {
-    //   feature.properties.references.forEach((reference) => {
-    //     if (!referencedIds.includes(reference['@id'])) {
-    //       referencedIds.push(reference['@id']);
-    //     }
-    //   });
-    // });
-    // return referencedIds;
-  }
-
-  private async run() {
-    const dat = readFileSync('first_update.json', 'utf8');
-    const obj: { features: Feature[] } = JSON.parse(dat);
-    const currentDate = new Date('2023-08-04T11:50:00-05:00');
-
-    const referencedIds = await this.findReferencedIds(obj);
-
-    const activeFeatures: Feature[] = [];
-    const readyToSendIds = new Set(
-      this.readyToSend.map((feature) => feature.id)
-    );
-
-    obj.features.forEach((feature) => {
-      const expirationDate = new Date(feature.properties.expires);
+  const findReferencedIds(obj) {
+    const referencedIds: string[];
+    // console.log(urgentImmediate);
+    obj.features.forEach((feature: any) => {
       if (
-        !referencedIds.includes(feature.id) &&
-        feature.properties.status === 'Actual' &&
-        feature.properties.messageType !== 'Cancel' &&
-        expirationDate > currentDate &&
-        feature.properties.urgency === 'Immediate'
+        feature.properties.references &&
+        feature.properties.references.length > 0
       ) {
-        activeFeatures.push(feature);
+        feature.properties.references.forEach((reference) => {
+          if (referencedIds.includes(reference["@id"])) {
+            referencedIds.push(reference["@id"]);
+          }
+        });
       }
     });
 
+    return referencedIds;
+  }
+
+  // public getAlerts() {
+  //   return this.$alertSubject.asObservable();
+  // }
+
+  // public setAlerts(alerts: any) {
+  //   this.alert = alerts;
+  //   this.$alertSubject.next(alerts);
+  // }
+
+
+  async function run() {
+    const dat = await this.http.get("first_update.json");
+    const obj = await JSON.parse(dat);
+    const currentDate = new Date("2023-08-04T11:50:00-05:00");
+    // console.log(currentDate);
+
+    const referencedIds = await this.findReferencedIds(obj);
+
+    // console.log(referencedIds);
+    const activeFeatures = [];
+    obj.features.forEach((feature) => {
+      const expirationDate = new Date(feature.properties.expires);
+      // console.log(expirationDate, currentDate);
+      if (
+        !referencedIds.includes(feature.id) &&
+        feature.properties.status === "Actual" &&
+        feature.properties.messageType !== "Cancel" &&
+        expirationDate > currentDate &&
+        feature.properties.urgency === "Immediate"
+      )
+        console.log(typeof activeFeatures[0]);
+      {
+        activeFeatures.push(feature);
+      }
+    });
+    // console.log("its here", activeFeatures);
+
+
     const severeOrExtremeFeatures = activeFeatures.filter(
       (feature) =>
-        feature.properties.severity === 'Severe' ||
-        feature.properties.severity === 'Extreme'
+        feature.properties.severity === "Severe" ||
+        feature.properties.severity === "Extreme"
     );
 
+    const alertedIds = new Set(shouldAlert.map((feature) => feature.id));
     const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
-      (feature) => !readyToSendIds.has(feature.id)
+      (feature) => {
+        const featureId = feature.id;
+        const referenceIds = feature.properties.references
+          ? feature.properties.references.map((reference) => reference.id)
+          : [];
+
+        // Check if either the feature ID or any of the reference IDs are in previousAlertedIds
+        return ![featureId, ...referenceIds].some((id) =>
+          previousAlertedIds.has(id)
+        );
+      }
     );
 
-    const newReadyToSendData: Feature[] = [...]; // Replace with your new data
-    this.updateReadyToSend(newReadyToSendData)
+    const response = await this.http.put("shouldAlert.json",
+      JSON.stringify(filteredSevereOrExtremeFeatures));
 
-    updateReadyToSend(newData: Feature[]): void {
-      this.readyToSend = newData;
-      this.localStorageService.setData('readyToSend', this.readyToSend);
+
+    function notifyAlert(feature, previousAlertedIds) {
+      // Display feature.properties.event to the user
+      console.log("Alert Event:", feature.properties.event);
+      console.log("Alert Description:", feature.properties.description);
+      console.log("Alert Headline:", feature.properties.headline);
+
+      // Save featureId to alertedIds
+      previousAlertedIds.add(feature.id);
+
+      // Save reference IDs to alertedIds
+      if (feature.properties.references) {
+        feature.properties.references.forEach((reference) => {
+          previousAlertedIds.add(reference["@id"]);
+        });
+      }
+    }
+
+    const alertShowData = await this.http.get("shouldAlert.json");
+    const alertShow = JSON.parse(alertShowData);
+    alertShow.forEach((alert) => {
+      notifyAlert(alert, alertedIds);
+    });
   }
-}
+
+  run().catch((error) => {
+    console.error(error);
+  });
+
