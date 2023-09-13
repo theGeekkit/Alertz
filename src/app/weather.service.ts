@@ -67,30 +67,39 @@ export class WeatherService {
     return referencedIds;
   }
 
-  async run() {
-    const obj: any = await lastValueFrom(this.http.get("first_update.json"));
-    const currentDate = new Date("2023-08-04T11:50:00-05:00");
-    // console.log(currentDate);
-
-    const referencedIds: string[] = await this.findReferencedIds(obj);
-
-    // console.log(referencedIds);
-    const activeFeatures:any[] = [];
-    obj.features.forEach((feature: any) => {
-      const expirationDate = new Date(feature.properties.expires);
-      // console.log(expirationDate, currentDate);
-      if (
-        !referencedIds.includes(feature.id) &&
-        feature.properties.status === "Actual" &&
-        feature.properties.messageType !== "Cancel" &&
-        expirationDate > currentDate &&
-        feature.properties.urgency === "Immediate"
-      )
-        console.log(typeof activeFeatures[0]);
-      {
-        activeFeatures.push(feature);
+  async getWeatherAlerts() {
+    let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
+    var weatherBlob;
+      if (this.currentFileProgressPosition >= this.fileProgression.length) {
+        this.currentFileProgressPosition = 0;
       }
-    });
+      try {
+
+      }
+
+    // const obj: any = await lastValueFrom(this.http.get("first_update.json"));
+    // const currentDate = new Date("2023-08-04T11:50:00-05:00");
+    // // console.log(currentDate);
+
+    // const referencedIds: string[] = await this.findReferencedIds(obj);
+
+    // // console.log(referencedIds);
+    // const activeFeatures:any[] = [];
+    // obj.features.forEach((feature: any) => {
+    //   const expirationDate = new Date(feature.properties.expires);
+    //   // console.log(expirationDate, currentDate);
+    //   if (
+    //     !referencedIds.includes(feature.id) &&
+    //     feature.properties.status === "Actual" &&
+    //     feature.properties.messageType !== "Cancel" &&
+    //     expirationDate > currentDate &&
+    //     feature.properties.urgency === "Immediate"
+    //   )
+    //     console.log(typeof activeFeatures[0]);
+    //   {
+    //     activeFeatures.push(feature);
+    //   }
+    // });
     // console.log("its here", activeFeatures);
 
 
