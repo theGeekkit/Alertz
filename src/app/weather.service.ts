@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
 
 
 
@@ -68,16 +68,15 @@ export class WeatherService {
   }
 
   async run() {
-    const dat = await this.http.get("first_update.json");
-    const obj = await JSON.parse(dat);
+    const obj: any = await lastValueFrom(this.http.get("first_update.json"));
     const currentDate = new Date("2023-08-04T11:50:00-05:00");
     // console.log(currentDate);
 
     const referencedIds: string[] = await this.findReferencedIds(obj);
 
     // console.log(referencedIds);
-    const activeFeatures = [];
-    obj.features.forEach((feature) => {
+    const activeFeatures:any[] = [];
+    obj.features.forEach((feature: any) => {
       const expirationDate = new Date(feature.properties.expires);
       // console.log(expirationDate, currentDate);
       if (
