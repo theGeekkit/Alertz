@@ -74,7 +74,15 @@ export class WeatherService {
         this.currentFileProgressPosition = 0;
       }
       try {
+         const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
+          weatherBlob = (await lastValueFrom(result)) as any;
+ // console.log(weatherBlob.features);
 
+      } catch (error) {
+        console.error('An error occurred:', error);
+      }
+ // console.log('function returned');
+        return weatherBlob;
       }
 
     // const obj: any = await lastValueFrom(this.http.get("first_update.json"));
