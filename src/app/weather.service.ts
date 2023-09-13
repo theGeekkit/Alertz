@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+
 
 
 
@@ -44,17 +45,20 @@ export class WeatherService {
 
   constructor(private http: HttpClient, private injector: Injector) { }
 
-  const findReferencedIds(obj) {
-    const referencedIds: string[];
-    // console.log(urgentImmediate);
+   async findReferencedIds(obj: any) {
+    const referencedIds: string[] = [];
+
     obj.features.forEach((feature: any) => {
-      if (
-        feature.properties.references &&
-        feature.properties.references.length > 0
-      ) {
-        feature.properties.references.forEach((reference) => {
-          if (referencedIds.includes(reference["@id"])) {
-            referencedIds.push(reference["@id"]);
+      if (feature.properties && feature.properties.references) {
+        feature.properties.references.forEach((reference: string) => {
+          const referenceType = typeof reference;
+
+          if (referenceType === "string") {
+            referencedIds.push(reference);
+          } else if (referenceType === "object") {
+
+          } else if (referenceType === "number") {
+
           }
         });
       }
@@ -63,23 +67,13 @@ export class WeatherService {
     return referencedIds;
   }
 
-  // public getAlerts() {
-  //   return this.$alertSubject.asObservable();
-  // }
-
-  // public setAlerts(alerts: any) {
-  //   this.alert = alerts;
-  //   this.$alertSubject.next(alerts);
-  // }
-
-
-  async function run() {
+  async run() {
     const dat = await this.http.get("first_update.json");
     const obj = await JSON.parse(dat);
     const currentDate = new Date("2023-08-04T11:50:00-05:00");
     // console.log(currentDate);
 
-    const referencedIds = await this.findReferencedIds(obj);
+    const referencedIds: string[] = await this.findReferencedIds(obj);
 
     // console.log(referencedIds);
     const activeFeatures = [];
