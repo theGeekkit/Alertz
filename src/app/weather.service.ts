@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom, interval, take } from 'rxjs';
 
 
 
@@ -25,7 +25,7 @@ export class WeatherService {
   forecast: any = {};
   public $alertSubject = new BehaviorSubject<any>(null);
   private intervalId: any;
-  private updateInterval: number = 60000;
+  private updateInterval: number = 120000;
   private displayWeather: any;
   private urgency: string = '';
   private event: string = '';
@@ -45,7 +45,7 @@ export class WeatherService {
 
   constructor(private http: HttpClient, private injector: Injector) { }
 
-   async findReferencedIds(obj: any) {
+  async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
 
     obj.features.forEach((feature: any) => {
@@ -56,9 +56,9 @@ export class WeatherService {
           if (referenceType === "string") {
             referencedIds.push(reference);
           } else if (referenceType === "object") {
-
+            // Handle other cases if needed
           } else if (referenceType === "number") {
-
+            // Handle other cases if needed
           }
         });
       }
@@ -69,21 +69,40 @@ export class WeatherService {
 
   async getWeatherAlerts() {
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
-    var weatherBlob;
-      if (this.currentFileProgressPosition >= this.fileProgression.length) {
-        this.currentFileProgressPosition = 0;
-      }
-      try {
-         const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
-          weatherBlob = (await lastValueFrom(result)) as any;
- // console.log(weatherBlob.features);
+    var activeFeatures: Feature[] = [];
 
-      } catch (error) {
-        console.error('An error occurred:', error);
+    if (this.currentFileProgressPosition >= this.fileProgression.length) {
+      this.currentFileProgressPosition = 0;
+    } this.intervalId = interval(this.updateInterval).subscribe(async () => {
+    try {
+      const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
+      const activeFeaturesResponse = (await lastValueFrom(result)) as { features: Feature[] };
+
+      const referencedIds = await this.findReferencedIds(activeFeaturesResponse);
+
+      for (const feature of activeFeaturesResponse.features) {
+        const currentDate = new Date();
+        const expirationDate = new Date(feature.properties.expires);
+
+        // Check conditions for including the feature
+        if (
+          referencedIds.includes(feature.id) &&
+          feature.properties.status === 'Actual' &&
+          feature.properties.messageType !== 'Cancel' &&
+          expirationDate > currentDate &&
+          feature.properties.urgency === 'Immediate'
+        ) {
+          activeFeatures.push(feature);
+        }
       }
- // console.log('function returned');
-        return weatherBlob;
+    } catch (error) {
+      console.error('An error occurred:', error);
       }
+    });
+
+    return activeFeatures;
+  }
+}
 
     // const obj: any = await lastValueFrom(this.http.get("first_update.json"));
     // const currentDate = new Date("2023-08-04T11:50:00-05:00");
@@ -103,10 +122,10 @@ export class WeatherService {
     //     expirationDate > currentDate &&
     //     feature.properties.urgency === "Immediate"
     //   )
-    //     console.log(typeof activeFeatures[0]);
-    //   {
-    //     activeFeatures.push(feature);
-    //   }
+      //   console.log(typeof activeFeatures[0]);
+      // {
+      //   activeFeatures.push(feature);
+      // }
     // });
     // console.log("its here", activeFeatures);
 
