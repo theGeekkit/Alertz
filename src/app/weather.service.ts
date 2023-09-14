@@ -109,34 +109,34 @@ export class WeatherService {
 
     return this.activeFeatures;
   }
-}
 
+  async run() {
+    try {
+      const activeFeatures = await this.getWeatherAlerts();
 
-
-const severeOrExtremeFeatures = activeFeatures.filter(
-      (feature) =>
-      feature.properties.severity === "Severe" ||
-      feature.properties.severity === "Extreme"
+      const severeOrExtremeFeatures = activeFeatures.filter(
+        (feature) =>
+          feature.properties.severity === "Severe" ||
+          feature.properties.severity === "Extreme"
       );
 
       const alertedIds = new Set(shouldAlert.map((feature) => feature.id));
       const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
         (feature) => {
           const featureId = feature.id;
-        const referenceIds = feature.properties.references
-          ? feature.properties.references.map((reference) => reference.id)
-          : [];
+          const referenceIds = feature.properties.references
+            ? feature.properties.references.map((reference) => reference.id)
+            : [];
 
-          // Check if either the feature ID or any of the reference IDs are in previousAlertedIds
+          // Check if either the feature ID or any of the reference IDs are in alertedIds
           return ![featureId, ...referenceIds].some((id) =>
-          previousAlertedIds.has(id)
+            alertedIds.has(id)
           );
         }
-        );
+      );
 
-        const response = await this.http.put("shouldAlert.json",
-      JSON.stringify(filteredSevereOrExtremeFeatures));
-
+      const response = await this.http.put("shouldAlert.json",
+        JSON.stringify(filteredSevereOrExtremeFeatures));
 
       function notifyAlert(feature, previousAlertedIds) {
         // Display feature.properties.event to the user
@@ -160,11 +160,12 @@ const severeOrExtremeFeatures = activeFeatures.filter(
       alertShow.forEach((alert) => {
         notifyAlert(alert, alertedIds);
       });
-    }
-
-    getWeatherAlerts().catch((error) => {
+    } catch (error) {
       console.error(error);
-    });
+    }
+  }
+}
+
 
 
 
