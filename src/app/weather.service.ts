@@ -114,7 +114,7 @@ export class WeatherService {
     try {
 
       const response = await lastValueFrom(this.http.get<Feature>("shouldAlert.json"));
-      const shouldAlert: Feature[] = response;
+      const shouldAlert: Feature[] = Array.isArray(response) ? response : [response];
 
       const activeFeatures = await this.getWeatherAlerts();
 
@@ -129,7 +129,7 @@ export class WeatherService {
         (feature) => {
           const featureId = feature.id;
           const referenceIds = feature.properties.references
-            ? feature.properties.references.map((reference) => reference.id)
+            ? feature.properties.references.map((reference) => reference['@id'])
             : [];
 
           // Check if either the feature ID or any of the reference IDs are in alertedIds
