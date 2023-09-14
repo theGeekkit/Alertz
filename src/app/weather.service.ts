@@ -142,7 +142,7 @@ export class WeatherService {
       const filterResponse = await this.http.put("shouldAlert.json",
         JSON.stringify(filteredSevereOrExtremeFeatures));
 
-      function notifyAlert(feature, previousAlertedIds) {
+      function notifyAlert(feature: any, previousAlertedIds: Set<string>) {
         // Display feature.properties.event to the user
         console.log("Alert Event:", feature.properties.event);
         console.log("Alert Description:", feature.properties.description);
@@ -152,15 +152,15 @@ export class WeatherService {
         previousAlertedIds.add(feature.id);
 
         // Save reference IDs to alertedIds
-        if (feature.properties.references) {
-          feature.properties.references.forEach((reference) => {
+        if (feature.properties?.references) {
+          feature.properties.references.forEach((reference: {'@id': string}) => {
             previousAlertedIds.add(reference["@id"]);
           });
         }
       }
 
-      const alertShowData = await this.http.get("shouldAlert.json");
-      const alertShow = JSON.parse(alertShowData);
+      const alertShowData = await lastValueFrom(this.http.get("shouldAlert.json"));
+      const alertShow = alertShowData as any[];
       alertShow.forEach((alert) => {
         notifyAlert(alert, alertedIds);
       });
@@ -171,55 +171,3 @@ export class WeatherService {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // const obj: any = await lastValueFrom(this.http.get("first_update.json"));
-    // const currentDate = new Date("2023-08-04T11:50:00-05:00");
-    // // console.log(currentDate);
-
-    // const referencedIds: string[] = await this.findReferencedIds(obj);
-
-    // // console.log(referencedIds);
-    // const activeFeatures:any[] = [];
-    // obj.features.forEach((feature: any) => {
-    //   const expirationDate = new Date(feature.properties.expires);
-    //   // console.log(expirationDate, currentDate);
-    //   if (
-    //     !referencedIds.includes(feature.id) &&
-    //     feature.properties.status === "Actual" &&
-    //     feature.properties.messageType !== "Cancel" &&
-    //     expirationDate > currentDate &&
-    //     feature.properties.urgency === "Immediate"
-    //   )
-      //   console.log(typeof activeFeatures[0]);
-      // {
-      //   activeFeatures.push(feature);
-      // }
-    // });
-    // console.log("its here", activeFeatures);
