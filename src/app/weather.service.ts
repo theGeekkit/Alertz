@@ -114,7 +114,7 @@ export class WeatherService {
     try {
 
       const response = await lastValueFrom(this.http.get<Feature>("shouldAlert.json"));
-      const shouldAlert: Feature[] = Array.isArray(response) ? response : [response];
+      const shouldAlert: any[] = [];
 
       const activeFeatures = await this.getWeatherAlerts();
 
