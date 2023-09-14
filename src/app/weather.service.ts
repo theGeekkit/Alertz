@@ -36,6 +36,7 @@ export class WeatherService {
   private severity: string = '';
   private description: string = '';
   private readyToSend: Feature[] = [];
+  activeFeatures: Feature[] = [];
 
   fileProgression = [
     'initial_alerts.json',
@@ -47,7 +48,7 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  constructor(private http: HttpClient, private injector: Injector) {  this.intervalId = rxjsInterval(this.updateInterval).subscribe(() => {
+  constructor(private http: HttpClient, private injector: Injector) {  this.intervalId = interval(this.updateInterval).subscribe(() => {
     this.getWeatherAlerts();
   }); }
 
@@ -106,9 +107,92 @@ export class WeatherService {
       }
 
 
-    return activeFeatures;
+    return this.activeFeatures;
   }
 }
+
+
+
+const severeOrExtremeFeatures = activeFeatures.filter(
+      (feature) =>
+      feature.properties.severity === "Severe" ||
+      feature.properties.severity === "Extreme"
+      );
+
+      const alertedIds = new Set(shouldAlert.map((feature) => feature.id));
+      const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
+        (feature) => {
+          const featureId = feature.id;
+        const referenceIds = feature.properties.references
+          ? feature.properties.references.map((reference) => reference.id)
+          : [];
+
+          // Check if either the feature ID or any of the reference IDs are in previousAlertedIds
+          return ![featureId, ...referenceIds].some((id) =>
+          previousAlertedIds.has(id)
+          );
+        }
+        );
+
+        const response = await this.http.put("shouldAlert.json",
+      JSON.stringify(filteredSevereOrExtremeFeatures));
+
+
+      function notifyAlert(feature, previousAlertedIds) {
+        // Display feature.properties.event to the user
+        console.log("Alert Event:", feature.properties.event);
+        console.log("Alert Description:", feature.properties.description);
+        console.log("Alert Headline:", feature.properties.headline);
+
+        // Save featureId to alertedIds
+        previousAlertedIds.add(feature.id);
+
+        // Save reference IDs to alertedIds
+        if (feature.properties.references) {
+          feature.properties.references.forEach((reference) => {
+            previousAlertedIds.add(reference["@id"]);
+          });
+        }
+      }
+
+      const alertShowData = await this.http.get("shouldAlert.json");
+      const alertShow = JSON.parse(alertShowData);
+      alertShow.forEach((alert) => {
+        notifyAlert(alert, alertedIds);
+      });
+    }
+
+    getWeatherAlerts().catch((error) => {
+      console.error(error);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // const obj: any = await lastValueFrom(this.http.get("first_update.json"));
     // const currentDate = new Date("2023-08-04T11:50:00-05:00");
@@ -134,58 +218,3 @@ export class WeatherService {
       // }
     // });
     // console.log("its here", activeFeatures);
-
-
-    const severeOrExtremeFeatures = activeFeatures.filter(
-      (feature) =>
-        feature.properties.severity === "Severe" ||
-        feature.properties.severity === "Extreme"
-    );
-
-    const alertedIds = new Set(shouldAlert.map((feature) => feature.id));
-    const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
-      (feature) => {
-        const featureId = feature.id;
-        const referenceIds = feature.properties.references
-          ? feature.properties.references.map((reference) => reference.id)
-          : [];
-
-        // Check if either the feature ID or any of the reference IDs are in previousAlertedIds
-        return ![featureId, ...referenceIds].some((id) =>
-          previousAlertedIds.has(id)
-        );
-      }
-    );
-
-    const response = await this.http.put("shouldAlert.json",
-      JSON.stringify(filteredSevereOrExtremeFeatures));
-
-
-    function notifyAlert(feature, previousAlertedIds) {
-      // Display feature.properties.event to the user
-      console.log("Alert Event:", feature.properties.event);
-      console.log("Alert Description:", feature.properties.description);
-      console.log("Alert Headline:", feature.properties.headline);
-
-      // Save featureId to alertedIds
-      previousAlertedIds.add(feature.id);
-
-      // Save reference IDs to alertedIds
-      if (feature.properties.references) {
-        feature.properties.references.forEach((reference) => {
-          previousAlertedIds.add(reference["@id"]);
-        });
-      }
-    }
-
-    const alertShowData = await this.http.get("shouldAlert.json");
-    const alertShow = JSON.parse(alertShowData);
-    alertShow.forEach((alert) => {
-      notifyAlert(alert, alertedIds);
-    });
-  }
-
-  run().catch((error) => {
-    console.error(error);
-  });
-
