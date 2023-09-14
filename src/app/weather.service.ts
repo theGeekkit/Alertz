@@ -112,6 +112,10 @@ export class WeatherService {
 
   async run() {
     try {
+
+      const response = await lastValueFrom(this.http.get<string>("shouldAlert.json"));
+      const shouldAlert: string[] = JSON.parse(response) as string[];
+
       const activeFeatures = await this.getWeatherAlerts();
 
       const severeOrExtremeFeatures = activeFeatures.filter(
@@ -135,7 +139,7 @@ export class WeatherService {
         }
       );
 
-      const response = await this.http.put("shouldAlert.json",
+      const filterResponse = await this.http.put("shouldAlert.json",
         JSON.stringify(filteredSevereOrExtremeFeatures));
 
       function notifyAlert(feature, previousAlertedIds) {
