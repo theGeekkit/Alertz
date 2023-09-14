@@ -113,8 +113,8 @@ export class WeatherService {
   async run() {
     try {
 
-      const response = await lastValueFrom(this.http.get<string>("shouldAlert.json"));
-      const shouldAlert: string[] = JSON.parse(response) as string[];
+      const response = await lastValueFrom(this.http.get<Feature>("shouldAlert.json"));
+      const shouldAlert: Feature[] = response;
 
       const activeFeatures = await this.getWeatherAlerts();
 
