@@ -1,3 +1,7 @@
+
+
+
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 import { BehaviorSubject, Observable, lastValueFrom, interval, take } from 'rxjs';
@@ -43,7 +47,9 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  constructor(private http: HttpClient, private injector: Injector) { }
+  constructor(private http: HttpClient, private injector: Injector) {  this.intervalId = rxjsInterval(this.updateInterval).subscribe(() => {
+    this.getWeatherAlerts();
+  }); }
 
   async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
@@ -73,7 +79,7 @@ export class WeatherService {
 
     if (this.currentFileProgressPosition >= this.fileProgression.length) {
       this.currentFileProgressPosition = 0;
-    } this.intervalId = interval(this.updateInterval).subscribe(async () => {
+    }
     try {
       const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
       const activeFeaturesResponse = (await lastValueFrom(result)) as { features: Feature[] };
@@ -98,7 +104,7 @@ export class WeatherService {
     } catch (error) {
       console.error('An error occurred:', error);
       }
-    });
+
 
     return activeFeatures;
   }
