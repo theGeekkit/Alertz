@@ -1,3 +1,7 @@
+
+
+
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 import { Subscription } from 'rxjs'; // Import Subscription
@@ -15,16 +19,10 @@ export class WeatherAlertComponent implements OnInit {
   constructor(public weatherService: WeatherService) { }
 
   ngOnInit(): void {
-    this.fetchData();
+
   }
-  async fetchData() {
-    const jsonData = await this.weatherService.readyToSend();
-    if (jsonData) {
-      // Work with the JSON data here
-      console.log('Fetched JSON data:', jsonData);
-    } else {
-      // Handle the error
-      console.error('Failed to fetch JSON data.');
-    }
+  ngOnDestroy() {
+
   }
+
 }

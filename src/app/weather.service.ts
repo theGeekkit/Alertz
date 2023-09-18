@@ -1,13 +1,12 @@
-
-
-
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom, interval, take } from 'rxjs';
-
-
-
+import {
+  BehaviorSubject,
+  Observable,
+  lastValueFrom,
+  interval,
+  take,
+} from 'rxjs';
 
 interface Feature {
   id: string;
@@ -18,6 +17,9 @@ interface Feature {
     urgency: string;
     severity: string;
     references: { '@id': string }[];
+    event: string;
+    headline: string;
+    description: string;
   };
 }
 
@@ -25,18 +27,17 @@ interface Feature {
   providedIn: 'root',
 })
 export class WeatherService {
-  alert: any = {};
-  forecast: any = {};
-  public $alertSubject = new BehaviorSubject<any>(null);
-  private intervalId: any;
-  private updateInterval: number = 120000;
-  private displayWeather: any;
-  private urgency: string = '';
-  private event: string = '';
-  private severity: string = '';
-  private description: string = '';
-  private readyToSend: Feature[] = [];
-  activeFeatures: Feature[] = [];
+
+
+
+  public activeFeatures: Feature[] = [];
+  public activeNotifications: Feature[] = [];
+
+
+  private timeoutHandle: NodeJS.Timer;
+  private updateInterval: number = 2000;
+  private previousAlertedIds: string[] = [];
+
 
   fileProgression = [
     'initial_alerts.json',
@@ -48,23 +49,28 @@ export class WeatherService {
 
   currentFileProgressPosition = 0;
 
-  constructor(private http: HttpClient, private injector: Injector) {  this.intervalId = interval(this.updateInterval).subscribe(() => {
-    this.getWeatherAlerts();
-  }); }
+  constructor(private http: HttpClient, private injector: Injector) {
+
+    this.timeoutHandle = setInterval(() => { this.updateAlerts() }, this.updateInterval);
+    // this.intervalId = interval(this.updateInterval).subscribe(() => {
+    //   this.updateAlerts();
+    // });
+  }
 
   async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
 
     obj.features.forEach((feature: any) => {
-      if (feature.properties && feature.properties.references) {
-        feature.properties.references.forEach((reference: string) => {
-          const referenceType = typeof reference;
 
-          if (referenceType === "string") {
-            referencedIds.push(reference);
-          } else if (referenceType === "object") {
+      if (feature.properties && feature.properties.references) {
+
+        feature.properties.references.forEach((reference: any) => {
+          const referenceType = typeof reference;
+          if (referenceType === 'object') {
+            referencedIds.push(reference['@id']);
+          } else if (referenceType === 'undefined') {
             // Handle other cases if needed
-          } else if (referenceType === "number") {
+          } else if (referenceType === 'number') {
             // Handle other cases if needed
           }
         });
@@ -75,99 +81,110 @@ export class WeatherService {
   }
 
   async getWeatherAlerts() {
+    this.activeFeatures = [];
     let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
-    var activeFeatures: Feature[] = [];
 
     if (this.currentFileProgressPosition >= this.fileProgression.length) {
       this.currentFileProgressPosition = 0;
     }
     try {
-      const result: any = this.http.get(`/assets/json/${fileLookup}`).pipe(take(2));
-      const activeFeaturesResponse = (await lastValueFrom(result)) as { features: Feature[] };
+      const result: any = this.http
+        .get(`/assets/json/${fileLookup}`)
+        .pipe(take(2));
 
-      const referencedIds = await this.findReferencedIds(activeFeaturesResponse);
+
+
+      const activeFeaturesResponse = (await lastValueFrom(result)) as {
+        features: Feature[];
+      };
+
+      const referencedIds = await this.findReferencedIds(
+        activeFeaturesResponse
+      );
+
 
       for (const feature of activeFeaturesResponse.features) {
-        const currentDate = new Date();
+        const currentDate = new Date("2023-08-04T11:50:00-05:00");
         const expirationDate = new Date(feature.properties.expires);
-
+        console.log(feature);
         // Check conditions for including the feature
+
+        // console.log(!referencedIds.includes(feature.id),
+        // feature.properties.status === 'Actual',
+        // feature.properties.messageType !== 'Cancel',
+        // expirationDate > currentDate)
+
         if (
-          referencedIds.includes(feature.id) &&
+          !referencedIds.includes(feature.id) &&
           feature.properties.status === 'Actual' &&
           feature.properties.messageType !== 'Cancel' &&
-          expirationDate > currentDate &&
-          feature.properties.urgency === 'Immediate'
+          expirationDate > currentDate/* &&
+          feature.properties.urgency === 'Immediate'*/
         ) {
-          activeFeatures.push(feature);
+         this.activeFeatures.push(feature);
         }
       }
     } catch (error) {
       console.error('An error occurred:', error);
-      }
-
-
-    return this.activeFeatures;
+    }
   }
 
-  async run() {
+  public confirmNotification(feature: any) {
+    let index = this.activeNotifications.findIndex((item) => item.id === feature.id);
+    this.activeNotifications.splice(index, 1);
+  }
+
+
+  async updateAlerts() {
+
     try {
 
-      const response = await lastValueFrom(this.http.get<Feature>("shouldAlert.json"));
-      const shouldAlert: any[] = [];
+      await this.getWeatherAlerts();
 
-      const activeFeatures = await this.getWeatherAlerts();
 
-      const severeOrExtremeFeatures = activeFeatures.filter(
+      // Get a list of active features that are severe or extreme
+      const severeOrExtremeFeatures = this.activeFeatures.filter(
         (feature) =>
-          feature.properties.severity === "Severe" ||
-          feature.properties.severity === "Extreme"
+          feature.properties.severity === 'Severe' ||
+          feature.properties.severity === 'Extreme'
       );
 
-      const alertedIds = new Set(shouldAlert.map((feature) => feature.id));
+      // Loop through the severe and extreme features to see if we've notified them before.
       const filteredSevereOrExtremeFeatures = severeOrExtremeFeatures.filter(
         (feature) => {
-          const featureId = feature.id;
+
           const referenceIds = feature.properties.references
             ? feature.properties.references.map((reference) => reference['@id'])
             : [];
 
           // Check if either the feature ID or any of the reference IDs are in alertedIds
-          return ![featureId, ...referenceIds].some((id) =>
-            alertedIds.has(id)
-          );
+          return ![feature.id, ...referenceIds].some((id) => this.previousAlertedIds.includes(id));
         }
       );
 
-      const filterResponse = await this.http.put("shouldAlert.json",
-        JSON.stringify(filteredSevereOrExtremeFeatures));
 
-      function notifyAlert(feature: any, previousAlertedIds: Set<string>) {
-        // Display feature.properties.event to the user
-        console.log("Alert Event:", feature.properties.event);
-        console.log("Alert Description:", feature.properties.description);
-        console.log("Alert Headline:", feature.properties.headline);
-
-        // Save featureId to alertedIds
-        previousAlertedIds.add(feature.id);
-
-        // Save reference IDs to alertedIds
-        if (feature.properties?.references) {
-          feature.properties.references.forEach((reference: {'@id': string}) => {
-            previousAlertedIds.add(reference["@id"]);
-          });
-        }
-      }
-
-      const alertShowData = await lastValueFrom(this.http.get("shouldAlert.json"));
-      const alertShow = alertShowData as any[];
-      alertShow.forEach((alert) => {
-        notifyAlert(alert, alertedIds);
+      filteredSevereOrExtremeFeatures.forEach((alert) => {
+        this.notifyAlert(alert);
       });
     } catch (error) {
       console.error(error);
     }
+
+
+  }
+
+  notifyAlert(feature: any) {
+    // Save featureId to alertedIds
+    this.previousAlertedIds.push(feature.id);
+
+    // Save reference IDs to alertedIds
+    if (feature.properties?.references) {
+      feature.properties.references.forEach(
+        (reference: { '@id': string }) => {
+          this.previousAlertedIds.push(reference['@id']);
+        }
+      );
+    }
+    this.activeNotifications.push(feature);
   }
 }
-
-

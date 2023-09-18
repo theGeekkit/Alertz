@@ -1,53 +1,23 @@
 <div>
   <h2>Weather Alert</h2>
+  <h1>Notifications</h1>
+  <ul>
+    <li *ngFor="let feature of weatherService.activeNotifications">
+      {{feature.properties.severity}} <b (click)="weatherService.confirmNotification(feature)">confirm</b>
+    </li>
 
-  <div class="mat-card-container">
-    <mat-card class="mat-card-forecast" *ngIf="forecast">
-      <div>
-        <h3>Forecast</h3>
-        <ul>
-          <h4>{{ forecast.temperature }}</h4>
-          <h4>{{ forecast.detailedForecast }}</h4>
+  </ul>
 
 
-        </ul>
-      </div>
-    </mat-card>
-    <mat-card class="mat-card-uno">
-      <!-- <pre>{{alert | json}}</pre> -->
-      <div *ngIf="alert">
+  <h2>Active Alerts</h2>
+  <ul>
+    <li *ngFor="let feature of weatherService.activeFeatures">
+      <b>{{feature.properties.event}}</b>
+      <b>{{feature.properties.headline}}</b>
+      <pre>{{feature.properties.description}}</pre>
 
-        <h3> here {{ alert.event }}  </h3>
-        <ul>
-          <h3> {{ alert.severity }}</h3>
-        </ul>
-      </div>
-    </mat-card>
-    <mat-card class="mat-card-deuce">
-      <ng-container *ngIf="alert; else noAlert">
-        <ul>
-          <h4> {{ alert.description }}</h4>
-        </ul>
-      </ng-container>
-      <ng-template #noAlert>
-        <div class="alert">
-          <p>No weather alerts available.</p>
-        </div>
-      </ng-template>
-    </mat-card>
+    </li>
+  </ul>
 
-    <!-- <mat-card class="mat-card-deuce">
-      <div *ngIf="alert">
-        <h3>{{ alert.event }}</h3>
-        <ul>
-         <h4> {{ alert.severity }}</h4>
-          <li> {{ alert.description }} Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, quam error dolorem cupiditate, quos beatae a illo, dolore accusamus voluptates culpa. Expedita ut voluptatum debitis magni optio eos explicabo nulla.</li>
-        </ul>
-      </div>
-    </mat-card>
-    <div class="alert" *ngIf="!alert">
-      <p>No weather alerts available.</p>
-    </div> -->
-  </div>
 
 </div>
