@@ -53,7 +53,7 @@ export class WeatherService {
   async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
 
-    obj.features.forEach((feature: any) => {
+    obj.features.forEach((feature: Feature) => {
       if (feature.properties && feature.properties.references) {
         feature.properties.references.forEach((reference: any) => {
           const referenceType = typeof reference;
