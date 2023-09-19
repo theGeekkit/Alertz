@@ -50,23 +50,29 @@ export class WeatherService {
     }, this.updateInterval);
   }
 
-  async findReferencedIds(obj: any) {
+  async findReferencedIds(obj: {
+    features: {
+      properties?: {
+        references?: { '@id': string }[] | undefined;
+      }[];
+    }[];
+  }): Promise<string[]> {
     const referencedIds: string[] = [];
 
-    obj.features.forEach((feature: any) => {
-      if (feature.properties && feature.properties.references) {
-        feature.properties.references.forEach((reference: any) => {
-          const referenceType = typeof reference;
-          if (referenceType === 'object') {
-            referencedIds.push(reference['@id']);
-          } else if (referenceType === 'undefined') {
-            // Handle other cases if needed
-          } else if (referenceType === 'number') {
-            // Handle other cases if needed
-          }
-        });
-      }
-    });
+  obj.features.forEach((feature: any) => {
+    if (feature.properties && feature.properties.references) {
+      feature.properties.references.forEach((reference: any) => {
+        const referenceType = typeof reference;
+        if (referenceType === 'object') {
+          referencedIds.push(reference['@id']);
+        } else if (referenceType === 'undefined') {
+          // Handle other cases if needed
+        } else if (referenceType === 'number') {
+          // Handle other cases if needed
+        }
+      });
+    }
+  });
 
     return referencedIds;
   }
@@ -149,7 +155,7 @@ export class WeatherService {
     );
   }
 
-  notifyAlert(feature: any) {
+  notifyAlert(feature: Feature) {
     // Save featureId to alertedIds
     this.previousAlertedIds.push(feature.id);
 
