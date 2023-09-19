@@ -1,12 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import {
-  BehaviorSubject,
-  Observable,
-  lastValueFrom,
-  interval,
-  take,
-} from 'rxjs';
+import { BehaviorSubject, Observable, lastValueFrom, interval, take, } from 'rxjs';
 
 interface Feature {
   id: string;
@@ -48,9 +42,6 @@ export class WeatherService {
     this.timeoutHandle = setInterval(() => {
       this.extremeAlerts();
     }, this.updateInterval);
-    // this.intervalId = interval(this.updateInterval).subscribe(() => {
-    //   this.updateAlerts();
-    // });
   }
 
   async findReferencedIds(obj: any) {
@@ -85,6 +76,10 @@ export class WeatherService {
       const result: any = this.http
         .get(`/assets/json/${fileLookup}`)
         .pipe(take(2));
+        //unsure on if the pipe is needed. It only listens for the first two emissions
+        //(responses) from the Observable returned by this.http.get(). After receiving
+        //two responses, it unsubscribes from further emissions, effectively cancelling
+        //any subsequent HTTP requests.
 
       const activeFeaturesResponse = (await lastValueFrom(result)) as {
         features: Feature[];
@@ -98,19 +93,12 @@ export class WeatherService {
         const currentDate = new Date('2023-08-04T11:50:00-05:00');
         const expirationDate = new Date(feature.properties.expires);
         console.log(feature);
-        // Check conditions for including the feature
-
-        // console.log(!referencedIds.includes(feature.id),
-        // feature.properties.status === 'Actual',
-        // feature.properties.messageType !== 'Cancel',
-        // expirationDate > currentDate)
 
         if (
           !referencedIds.includes(feature.id) &&
           feature.properties.status === 'Actual' &&
           feature.properties.messageType !== 'Cancel' &&
-          expirationDate > currentDate /* &&
-          feature.properties.urgency === 'Immediate'*/
+          expirationDate > currentDate
         ) {
           this.activeFeatures.push(feature);
         }
