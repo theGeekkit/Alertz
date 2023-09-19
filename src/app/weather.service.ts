@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { BehaviorSubject, Observable, lastValueFrom, interval, take, } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  lastValueFrom,
+  interval,
+  take,
+} from 'rxjs';
 
 interface Feature {
   id: string;
@@ -73,13 +79,7 @@ export class WeatherService {
       this.currentFileProgressPosition = 0;
     }
     try {
-      const result: any = this.http
-        .get(`/assets/json/${fileLookup}`)
-        .pipe(take(2));
-        //unsure on if the pipe is needed. It only listens for the first two emissions
-        //(responses) from the Observable returned by this.http.get(). After receiving
-        //two responses, it unsubscribes from further emissions, effectively cancelling
-        //any subsequent HTTP requests.
+      const result: any = this.http.get(`/assets/json/${fileLookup}`);
 
       const activeFeaturesResponse = (await lastValueFrom(result)) as {
         features: Feature[];
