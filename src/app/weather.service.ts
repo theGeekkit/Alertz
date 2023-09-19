@@ -108,11 +108,13 @@ export class WeatherService {
     }
   }
 
-  public confirmNotification(feature: any) {
+  public confirmNotification(feature: Feature) {
     let index = this.activeNotifications.findIndex(
       (item) => item.id === feature.id
     );
-    this.activeNotifications.splice(index, 1);
+    if (index !== -1) {
+      this.activeNotifications.splice(index, 1);
+    }
   }
 
   async extremeAlerts() {
