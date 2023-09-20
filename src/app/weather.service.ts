@@ -1,5 +1,9 @@
+
+
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
+import { Feature } from './feature.model';
 import {
   BehaviorSubject,
   Observable,
@@ -8,20 +12,7 @@ import {
   take,
 } from 'rxjs';
 
-interface Feature {
-  id: string;
-  properties: {
-    expires: string;
-    status: string;
-    messageType: string;
-    urgency: string;
-    severity: string;
-    references: { '@id': string }[];
-    event: string;
-    headline: string;
-    description: string;
-  };
-}
+
 
 @Injectable({
   providedIn: 'root',
