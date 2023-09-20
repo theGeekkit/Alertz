@@ -10,14 +10,14 @@
 
 
   <h2>Active Alerts</h2>
-  <ul>
+  <div class="hwrap"><div class="hmove">
     <li *ngFor="let feature of weatherService.activeFeatures">
-      <b>{{feature.properties.event}}</b>
-      <b>{{feature.properties.headline}}</b>
-      <pre>{{feature.properties.description}}</pre>
+      <div class="hitem">{{feature.properties.event}}, {{feature.properties.headline}}, {{feature.properties.description}}</div>
+        <!-- <div class="hitem"></div>
+          <div class="hitem"></div> -->
 
     </li>
-  </ul>
+  </div></div>
 
 
 </div>
