@@ -41,7 +41,8 @@ export class WeatherService {
   async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
 
-    obj.features.forEach((feature: IFeature) => {
+    if (obj.features && Array.isArray(obj.features)) {
+      obj.features.forEach((feature: IFeature) => {
       if (feature.properties && feature.properties.references) {
         feature.properties.references.forEach((reference: any) => {
           const referenceType = typeof reference;
@@ -55,6 +56,7 @@ export class WeatherService {
         });
       }
     });
+  }
 
     return referencedIds;
   }
@@ -94,9 +96,9 @@ export class WeatherService {
       lookupURL = `/assets/json/${fileLookup}`;
     }
     try {
-      const result: any = this.http.get(lookupURL);
+      const result$: any = this.http.get(lookupURL);
 
-      const activeFeaturesResponse = (await lastValueFrom(result)) as {
+      const activeFeaturesResponse = (await lastValueFrom(result$)) as {
         features: IFeature[];
       };
 
