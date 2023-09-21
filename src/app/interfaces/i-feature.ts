@@ -1,5 +1,6 @@
 
 export interface IFeature {
+  type: string;
   id: string;
   properties: {
     expires: string;
