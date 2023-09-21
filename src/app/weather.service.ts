@@ -102,6 +102,7 @@ export class WeatherService {
         features: IFeature[];
       };
 
+      if (activeFeaturesResponse.features && Array.isArray(activeFeaturesResponse.features)) {
       const referencedIds = await this.findReferencedIds(
         activeFeaturesResponse
       );
@@ -122,6 +123,9 @@ export class WeatherService {
           this.activeFeatures.push(feature);
         }
       }
+    } else {
+      console.error('Invalid or missing features in the response:', activeFeaturesResponse);
+    }
     } catch (error) {
       console.error('An error occurred:', error);
     }
