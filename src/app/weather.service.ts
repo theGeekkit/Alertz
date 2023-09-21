@@ -1,9 +1,7 @@
-
-
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
-import { Feature } from './feature.model';
+import { IFeature } from './interfaces/i-feature';
+
 import {
   BehaviorSubject,
   Observable,
@@ -12,17 +10,16 @@ import {
   take,
 } from 'rxjs';
 
-
+const DEBUG: boolean = false;
 
 @Injectable({
   providedIn: 'root',
 })
 export class WeatherService {
-  public activeFeatures: Feature[] = [];
-  public activeNotifications: Feature[] = [];
-
+  public activeFeatures: IFeature[] = [];
+  public activeNotifications: IFeature[] = [];
   private timeoutHandle: NodeJS.Timer;
-  private updateInterval: number = 2000;
+  private updateInterval: number = DEBUG ? 2000 : 60000;
   private previousAlertedIds: string[] = [];
 
   fileProgression = [
@@ -37,14 +34,14 @@ export class WeatherService {
 
   constructor(private http: HttpClient, private injector: Injector) {
     this.timeoutHandle = setInterval(() => {
-      this.extremeAlerts();
+      this.refreshWeatherAlerts();
     }, this.updateInterval);
   }
 
   async findReferencedIds(obj: any) {
     const referencedIds: string[] = [];
 
-    obj.features.forEach((feature: Feature) => {
+    obj.features.forEach((feature: IFeature) => {
       if (feature.properties && feature.properties.references) {
         feature.properties.references.forEach((reference: any) => {
           const referenceType = typeof reference;
@@ -62,55 +59,9 @@ export class WeatherService {
     return referencedIds;
   }
 
-  async getWeatherAlerts() {
-    this.activeFeatures = [];
-    let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
-
-    if (this.currentFileProgressPosition >= this.fileProgression.length) {
-      this.currentFileProgressPosition = 0;
-    }
+  async refreshWeatherAlerts() {
     try {
-      const result: any = this.http.get(`/assets/json/${fileLookup}`);
-
-      const activeFeaturesResponse = (await lastValueFrom(result)) as {
-        features: Feature[];
-      };
-
-      const referencedIds = await this.findReferencedIds(
-        activeFeaturesResponse
-      );
-
-      for (const feature of activeFeaturesResponse.features) {
-        const currentDate = new Date('2023-08-04T11:50:00-05:00');
-        const expirationDate = new Date(feature.properties.expires);
-        console.log(feature);
-
-        if (
-          !referencedIds.includes(feature.id) &&
-          feature.properties.status === 'Actual' &&
-          feature.properties.messageType !== 'Cancel' &&
-          expirationDate > currentDate
-        ) {
-          this.activeFeatures.push(feature);
-        }
-      }
-    } catch (error) {
-      console.error('An error occurred:', error);
-    }
-  }
-
-  public confirmNotification(feature: Feature) {
-    let index = this.activeNotifications.findIndex(
-      (item) => item.id === feature.id
-    );
-    if (index !== -1) {
-      this.activeNotifications.splice(index, 1);
-    }
-  }
-
-  async extremeAlerts() {
-    try {
-      await this.getWeatherAlerts();
+      await this.fetchWeatherAlerts();
 
       const severeOrExtremeFeatures = this.activeFeatures.filter(
         (feature) =>
@@ -130,7 +81,60 @@ export class WeatherService {
     }
   }
 
-  isItNewAlerts(alert: Feature): boolean {
+  async fetchWeatherAlerts() {
+    this.activeFeatures = [];
+    let lookupURL =
+      'https://api.weather.gov/alerts/active?point=38.9807,-76.9373';
+    if (DEBUG) {
+      let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
+
+      if (this.currentFileProgressPosition >= this.fileProgression.length) {
+        this.currentFileProgressPosition = 0;
+      }
+      lookupURL = `/assets/json/${fileLookup}`;
+    }
+    try {
+      const result: any = this.http.get(lookupURL);
+
+      const activeFeaturesResponse = (await lastValueFrom(result)) as {
+        features: IFeature[];
+      };
+
+      const referencedIds = await this.findReferencedIds(
+        activeFeaturesResponse
+      );
+      let currentDate = new Date();
+      if (DEBUG) {
+        currentDate = new Date('2023-08-04T11:50:00-05:00');
+      }
+      for (const feature of activeFeaturesResponse.features) {
+        const expirationDate = new Date(feature.properties.expires);
+        console.log(feature);
+
+        if (
+          !referencedIds.includes(feature.id) &&
+          feature.properties.status === 'Actual' &&
+          feature.properties.messageType !== 'Cancel' &&
+          expirationDate > currentDate
+        ) {
+          this.activeFeatures.push(feature);
+        }
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  }
+
+  public confirmNotification(feature: IFeature) {
+    let index = this.activeNotifications.findIndex(
+      (item) => item.id === feature.id
+    );
+    if (index !== -1) {
+      this.activeNotifications.splice(index, 1);
+    }
+  }
+
+  isItNewAlerts(alert: IFeature): boolean {
     const referenceIds = alert.properties.references
       ? alert.properties.references.map((reference) => reference['@id'])
       : [];
@@ -140,7 +144,7 @@ export class WeatherService {
     );
   }
 
-  notifyAlert(feature: Feature) {
+  notifyAlert(feature: IFeature) {
     // Save featureId to alertedIds
     this.previousAlertedIds.push(feature.id);
 

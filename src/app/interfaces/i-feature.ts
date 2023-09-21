@@ -1,5 +1,5 @@
 
-export interface Feature {
+export interface IFeature {
   id: string;
   properties: {
     expires: string;
@@ -7,6 +7,9 @@ export interface Feature {
     messageType: string;
     urgency: string;
     severity: string;
+    headline: string;
+    description: string;
+    event: string;
     references: { '@id': string }[];
   };
 }
