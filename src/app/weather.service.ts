@@ -86,7 +86,7 @@ export class WeatherService {
   async fetchWeatherAlerts() {
     this.activeFeatures = [];
     let lookupURL =
-      'https://api.weather.gov/points/42.495132,-96.400070';
+      'https://api.weather.gov/alerts/active?area=NC';
     if (DEBUG) {
       let fileLookup = this.fileProgression[this.currentFileProgressPosition++];
 
